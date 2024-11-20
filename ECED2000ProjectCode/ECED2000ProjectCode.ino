@@ -34,6 +34,7 @@ unsigned short countThres = 480; //threshold for car counter resistor drop
 
 //function declarations
 void changeSide();
+void resetLights();
 
 void setup() {
   // Setup pin modes
@@ -143,21 +144,8 @@ void changeSide() {
           analogWrite(R2, lightLvl);
           analogWrite(Y2, 0);
 
-          if (1) //TO DO: car counter logic, check if out = in
-          {
-            if (!gotIt2) {startTicks2 = ticks; gotIt2 = true;}
-            if (ticks < startTicks2 + 60) break;
-            analogWrite(G1, lightLvl);
-            analogWrite(R1, 0);
-            ticks = 0;
-            side = 1;
-            changeTo = 0;
-            gotIt = false;
-            gotIt2 = false;
-          }
+          if (1) resetSide(); //TO DO: car counter logic, check if out = in
         }
-        
-
         break;
       case 2:
         // Transition logic to side 2
@@ -175,23 +163,37 @@ void changeSide() {
           analogWrite(R1, lightLvl);
           analogWrite(Y1, 0);
 
-          if (1) //TO DO: car counter logic, check if out = in
-          {
-            if (!gotIt2) {startTicks2 = ticks; gotIt2 = true;}
-            if (ticks < startTicks2 + 60) break;
-            analogWrite(G2, lightLvl);
-            analogWrite(R2, 0);
-            ticks = 0;
-            side = 2;
-            changeTo = 0;
-            gotIt2 = false;
-            gotIt = false;
-          }
+          if (1) resetSide(); //TO DO: car counter logic, check if out = in
         }
-        
-
         break;
       default:
         break;
     }
+}
+
+void resetSide() {
+  switch (changeTo) {
+    case 1:
+      if (!gotIt2) {startTicks2 = ticks; gotIt2 = true;}
+      if (ticks < startTicks2 + 60) break;
+      analogWrite(G1, lightLvl);
+      analogWrite(R1, 0);
+      ticks = 0;
+      side = changeTo;
+      changeTo = 0;
+      gotIt = false;
+      gotIt2 = false;
+      break;
+    case 2:
+      if (!gotIt2) {startTicks2 = ticks; gotIt2 = true;}
+      if (ticks < startTicks2 + 60) break;
+      analogWrite(G2, lightLvl);
+      analogWrite(R2, 0);
+      ticks = 0;
+      side = changeTo;
+      changeTo = 0;
+      gotIt2 = false;
+      gotIt = false;
+      break;
+  }
 }
