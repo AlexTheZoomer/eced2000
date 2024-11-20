@@ -3,7 +3,7 @@ unsigned long startTime;
 int i=0;
 int j=0;
 unsigned char lightLvl;
-char side = 1; // What side is currently allowing traffic
+char side = 2; // What side is currently allowing traffic
 char changeTo = 0; // If ready, what side to change to
 int ticks = 0;
 bool waitTen = false; // If the circuit should wait ten seconds, then change
@@ -15,18 +15,18 @@ int startTicks2;
 // Pin definitions
 #define S1 A0
 #define S2 A1
-#define R1 2
-#define R2 3
-#define Y1 4
-#define Y2 5
-#define G1 6
-#define G2 7
+#define R1 3
+#define R2 5
+#define Y1 6
+#define Y2 9
+#define G1 10
+#define G2 11
 #define NS A2 //nighttime sensor
 
 // Properties
 
-unsigned char dimLvl = 20;
-unsigned char brtLvl = 200;
+unsigned char dimLvl = 100;
+unsigned char brtLvl = 255;
 int darkThres = 300; // ATTENTION: This will likely need to be adjusted to the conditions in the room; Try to put it in the middle of bright and dark readings
 int nightThres = 80; // ATTENTION: This will likely need to be adjusted to the conditions in the room; Try to put it in the middle of bright and dark readings
 
@@ -48,9 +48,6 @@ void setup() {
   // Start Serial log
   Serial.begin(9600);
 
-  // Initialize lights
-  analogWrite(G1, 200);
-  analogWrite(R2, 200);
 }
 
 void loop() {
