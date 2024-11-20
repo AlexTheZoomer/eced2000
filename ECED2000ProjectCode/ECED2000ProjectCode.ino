@@ -22,6 +22,7 @@ int startTicks2;
 #define G1 10
 #define G2 11
 #define NS A2 //nighttime sensor
+#define CC1 A3 //car counter 1
 
 // Properties
 
@@ -29,6 +30,7 @@ unsigned char dimLvl = 100;
 unsigned char brtLvl = 255;
 int darkThres = 300; // ATTENTION: This will likely need to be adjusted to the conditions in the room; Try to put it in the middle of bright and dark readings
 int nightThres = 80; // ATTENTION: This will likely need to be adjusted to the conditions in the room; Try to put it in the middle of bright and dark readings
+unsigned short countThres = 480; //threshold for car counter resistor drop
 
 //function declarations
 void changeSide();
@@ -118,7 +120,7 @@ void loop() {
   // Debug
   if (j==19) {
     Serial.print("Stop 1: "); Serial.print(stop1); Serial.print(", Stop 2: "); Serial.println(stop2); 
-    Serial.println(analogRead(NS));
+    Serial.println((int)(analogRead(CC1) < countThres));
     j=0;}
   else j++; 
 }
