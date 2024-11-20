@@ -21,12 +21,17 @@ int startTicks2;
 #define Y2 5
 #define G1 6
 #define G2 7
+#define NS A2 //nighttime sensor
 
 // Properties
 
 unsigned char dimLvl = 20;
 unsigned char brtLvl = 200;
 int darkThres = 300; // ATTENTION: This will likely need to be adjusted to the conditions in the room; Try to put it in the middle of bright and dark readings
+int nightThres = 80; // ATTENTION: This will likely need to be adjusted to the conditions in the room; Try to put it in the middle of bright and dark readings
+
+//function declarations
+
 
 void setup() {
   // Setup pin modes
@@ -38,6 +43,7 @@ void setup() {
   pinMode(R2, OUTPUT); //red 2
   pinMode(Y2, OUTPUT); //yellow 2
   pinMode(G2, OUTPUT); //green 2
+  pinMode(NS, INPUT); //Night sensor
 
   // Start Serial log
   Serial.begin(9600);
@@ -51,7 +57,7 @@ void loop() {
   startTime = millis(); // Get time in ms at start
 
   // Determine whether to dim lights
-  if (0 /*dark condition, for now always false*/) lightLvl = dimLvl;
+  if (analogRead(NS) < nightThres) lightLvl = dimLvl;
   else lightLvl = brtLvl;
 
   // Read from stop line sensors (sides indexed 0 and 1)
@@ -182,8 +188,7 @@ void loop() {
   // Debug
   if (j==19) {
     Serial.print("Stop 1: "); Serial.print(stop1); Serial.print(", Stop 2: "); Serial.println(stop2); 
-    Serial.println((int) ticks); // Debug printer
-    Serial.println((int) changeTo);
+    Serial.println(analogRead(NS));
     j=0;}
   else j++; 
 }
