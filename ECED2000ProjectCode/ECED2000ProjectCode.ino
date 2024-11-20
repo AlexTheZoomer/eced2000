@@ -2,12 +2,13 @@
 unsigned long startTime;
 int i=0;
 int j=0;
-char lightLvl;
+unsigned char lightLvl;
 char side = 1; // What side is currently allowing traffic
 char changeTo = 0; // If ready, what side to change to
 int ticks = 0;
 bool waitTen = false; // If the circuit should wait ten seconds, then change
-bool gotIt;
+bool gotIt = false;
+bool gotIt2 = false;
 int startTicks;
 int startTicks2;
 
@@ -23,9 +24,9 @@ int startTicks2;
 
 // Properties
 
-char dimLvl = 20;
-char brtLvl = 200;
-int darkThres = 120; // ATTENTION: This will likely need to be adjusted to the conditions in the room; Try to put it in the middle of bright and dark readings
+unsigned char dimLvl = 20;
+unsigned char brtLvl = 200;
+int darkThres = 300; // ATTENTION: This will likely need to be adjusted to the conditions in the room; Try to put it in the middle of bright and dark readings
 
 void setup() {
   // Setup pin modes
@@ -106,60 +107,66 @@ void loop() {
     switch (changeTo) {// Side changer logic
       case 1:
         // Transition logic to side 1
-        waitTen = false;
-        if (ticks >= startTicks + 60)
-        {
-          analogWrite(R2, lightLvl);
-          analogWrite(Y2, 0);
-          gotIt = false;
-
-          if (1) //TO DO: car counter logic, check if out = in
-          {
-            if (!gotIt) {startTicks2 = ticks; gotIt = true;}
-            if (ticks < startTicks2 + 60) break;
-            analogWrite(G1, lightLvl);
-            ticks = 0;
-            side = 1;
-            changeTo = 0;
-            gotIt = false;
-          }
-        }
-        else if (!gotIt) 
+        if (!gotIt) 
         {
           startTicks = ticks; 
           gotIt = true;
           analogWrite(Y2, lightLvl);
           analogWrite(G2, 0); 
         }
+        waitTen = false;
+
+        if (ticks >= startTicks + 60)
+        {
+          analogWrite(R2, lightLvl);
+          analogWrite(Y2, 0);
+
+          if (1) //TO DO: car counter logic, check if out = in
+          {
+            if (!gotIt2) {startTicks2 = ticks; gotIt2 = true;}
+            if (ticks < startTicks2 + 60) break;
+            analogWrite(G1, lightLvl);
+            analogWrite(R1, 0);
+            ticks = 0;
+            side = 1;
+            changeTo = 0;
+            gotIt = false;
+            gotIt2 = false;
+          }
+        }
+        
 
         break;
       case 2:
         // Transition logic to side 2
-        waitTen = false;
-        if (ticks >= startTicks + 60)
-        {
-          analogWrite(R1, lightLvl);
-          analogWrite(Y1, 0);
-          gotIt = false;
-
-          if (1) //TO DO: car counter logic, check if out = in
-          {
-            if (!gotIt) {startTicks2 = ticks; gotIt = true;}
-            if (ticks < startTicks2 + 60) break;
-            analogWrite(G2, lightLvl);
-            ticks = 0;
-            side = 2;
-            changeTo = 0;
-            gotIt = false;
-          }
-        }
-        else if (!gotIt) 
+        if (!gotIt) 
         {
           startTicks = ticks; 
           gotIt = true;
           analogWrite(Y1, lightLvl);
           analogWrite(G1, 0); 
         }
+        waitTen = false;
+
+        if (ticks >= startTicks + 60)
+        {
+          analogWrite(R1, lightLvl);
+          analogWrite(Y1, 0);
+
+          if (1) //TO DO: car counter logic, check if out = in
+          {
+            if (!gotIt2) {startTicks2 = ticks; gotIt2 = true;}
+            if (ticks < startTicks2 + 60) break;
+            analogWrite(G2, lightLvl);
+            analogWrite(R2, 0);
+            ticks = 0;
+            side = 2;
+            changeTo = 0;
+            gotIt2 = false;
+            gotIt = false;
+          }
+        }
+        
 
         break;
       default:
