@@ -11,6 +11,12 @@ bool gotIt = false;
 bool gotIt2 = false;
 int startTicks;
 int startTicks2;
+unsigned short carCount1 = 0;
+unsigned short carCount2 = 0;
+bool carSen1;
+bool carSen2;
+bool prevCarSen1 = false;
+bool prevCarSen2 = false;
 
 // Pin definitions
 #define S1 A0
@@ -22,7 +28,8 @@ int startTicks2;
 #define G1 10
 #define G2 11
 #define NS A2 //nighttime sensor
-#define CC1 A3 //car counter 1
+#define CC1 A3 // car counter 1
+#define CC2 A4 // car counter 2
 
 // Properties
 
@@ -35,6 +42,8 @@ unsigned short countThres = 480; //threshold for car counter resistor drop
 //function declarations
 void changeSide();
 void resetLights();
+bool carCheck();
+void carCounter();
 
 void setup() {
   // Setup pin modes
@@ -47,6 +56,8 @@ void setup() {
   pinMode(Y2, OUTPUT); //yellow 2
   pinMode(G2, OUTPUT); //green 2
   pinMode(NS, INPUT); //Night sensor
+  pinMode(CC1, INPUT);
+  pinMode(CC2, INPUT);
 
   // Start Serial log
   Serial.begin(9600);
@@ -63,6 +74,8 @@ void loop() {
   // Read from stop line sensors (sides indexed 0 and 1)
   int stop1 = analogRead(S1); // These range from ~620 in light to ~900 in the dark (BRIGHT ROOM CONDITIONS)
   int stop2 = analogRead(S2);
+
+  carCounter(); // count any cars passing
 
   // If NOT currently changing side, update lights
   if (changeTo == 0)
@@ -121,13 +134,13 @@ void loop() {
   // Debug
   if (j==19) {
     Serial.print("Stop 1: "); Serial.print(stop1); Serial.print(", Stop 2: "); Serial.println(stop2); 
-    Serial.println((int)(analogRead(CC1) < countThres));
+    Serial.print(carCount1); Serial.println(carCount2);
     j=0;}
   else j++; 
 }
 
-void changeSide() {
-  switch (changeTo) {// Side changer logic
+void changeSide() { // Side changer logic
+  switch (changeTo) {
       case 1:
         // Transition logic to side 1
         if (!gotIt) 
@@ -144,7 +157,7 @@ void changeSide() {
           analogWrite(R2, lightLvl);
           analogWrite(Y2, 0);
 
-          if (1) resetSide(); //TO DO: car counter logic, check if out = in
+          if (carCheck()) resetSide(); //TO DO: car counter logic, check if out = in
         }
         break;
       case 2:
@@ -163,7 +176,7 @@ void changeSide() {
           analogWrite(R1, lightLvl);
           analogWrite(Y1, 0);
 
-          if (1) resetSide(); //TO DO: car counter logic, check if out = in
+          if (carCheck()) resetSide(); //TO DO: car counter logic, check if out = in
         }
         break;
       default:
@@ -171,7 +184,7 @@ void changeSide() {
     }
 }
 
-void resetSide() {
+void resetSide() { // Runs logic for resetting the timers and changing the green side
   switch (changeTo) {
     case 1:
       if (!gotIt2) {startTicks2 = ticks; gotIt2 = true;}
@@ -183,6 +196,8 @@ void resetSide() {
       changeTo = 0;
       gotIt = false;
       gotIt2 = false;
+      carCount1 = 0;
+      carCount2 = 0;
       break;
     case 2:
       if (!gotIt2) {startTicks2 = ticks; gotIt2 = true;}
@@ -194,6 +209,23 @@ void resetSide() {
       changeTo = 0;
       gotIt2 = false;
       gotIt = false;
+      carCount1 = 0;
+      carCount2 = 0;
       break;
   }
+}
+
+bool carCheck() { // Checks if there are any cars currently crossing the bridge, True if bridge is clear
+  // Finish later
+  if (carCount1 == carCount2) return true;
+  else return false;
+}
+
+void carCounter() {
+  carSen1 = (bool) (analogRead(CC1) < countThres);
+  carSen2 = (bool) (analogRead(CC2) < countThres);
+  if (carSen1 && !prevCarSen1) carCount1++;
+  if (carSen2 && !prevCarSen2) carCount2++;
+  prevCarSen1 = carSen1;
+  prevCarSen2 = carSen2;
 }
