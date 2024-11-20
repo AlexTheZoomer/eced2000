@@ -31,7 +31,7 @@ int darkThres = 300; // ATTENTION: This will likely need to be adjusted to the c
 int nightThres = 80; // ATTENTION: This will likely need to be adjusted to the conditions in the room; Try to put it in the middle of bright and dark readings
 
 //function declarations
-
+void changeSide();
 
 void setup() {
   // Setup pin modes
@@ -107,7 +107,24 @@ void loop() {
     }
     break1:
 
-    switch (changeTo) {// Side changer logic
+    if (changeTo != 0) changeSide();
+  }
+
+  while(millis() < startTime + 50); // wait until 50ms have elapsed before reiterating (has the effect of creating a "fixed update" function)
+
+  // Increment ticks
+  ticks++;
+
+  // Debug
+  if (j==19) {
+    Serial.print("Stop 1: "); Serial.print(stop1); Serial.print(", Stop 2: "); Serial.println(stop2); 
+    Serial.println(analogRead(NS));
+    j=0;}
+  else j++; 
+}
+
+void changeSide() {
+  switch (changeTo) {// Side changer logic
       case 1:
         // Transition logic to side 1
         if (!gotIt) 
@@ -175,17 +192,4 @@ void loop() {
       default:
         break;
     }
-  }
-
-  while(millis() < startTime + 50); // wait until 50ms have elapsed before reiterating (has the effect of creating a "fixed update" function)
-
-  // Increment ticks
-  ticks++;
-
-  // Debug
-  if (j==19) {
-    Serial.print("Stop 1: "); Serial.print(stop1); Serial.print(", Stop 2: "); Serial.println(stop2); 
-    Serial.println(analogRead(NS));
-    j=0;}
-  else j++; 
 }
