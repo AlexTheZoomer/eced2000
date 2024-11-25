@@ -28,16 +28,16 @@ bool prevCarSen2 = false;
 #define G1 10
 #define G2 11
 #define NS A2 //nighttime sensor
-#define CC1 A3 // car counter 1
-#define CC2 A4 // car counter 2
+#define CC1 A6 // car counter 1
+#define CC2 A5 // car counter 2
 
 // Properties
 
 unsigned char dimLvl = 100;
 unsigned char brtLvl = 255;
-int darkThres = 300; // ATTENTION: This will likely need to be adjusted to the conditions in the room; Try to put it in the middle of bright and dark readings
+int darkThres = 100; // ATTENTION: This will likely need to be adjusted to the conditions in the room; Try to put it in the middle of bright and dark readings
 int nightThres = 80; // ATTENTION: This will likely need to be adjusted to the conditions in the room; Try to put it in the middle of bright and dark readings
-unsigned short countThres = 480; //threshold for car counter resistor drop
+unsigned short countThres = 450; //threshold for car counter resistor drop
 
 //function declarations
 void changeSide();
@@ -109,7 +109,7 @@ void loop() {
         break;
     }
 
-    if (waitTen)
+    if (waitTen && changeTo == 0)
     {
         if (!gotIt) {startTicks = ticks; gotIt = true;} // On first iteration, record current ticks
         if (ticks < startTicks + 200) goto break1; // Exit this logic if <10 seconds have elapsed
